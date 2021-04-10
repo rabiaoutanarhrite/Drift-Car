@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class EnemyFollowMe : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject spawnPos;
+    [SerializeField]
     private GameObject player;
     public float moveSpeed = 5f;
     private float rotateSpeed = 8f;
@@ -16,7 +19,7 @@ public class EnemyFollowMe : MonoBehaviour
      void Start()
     {
         
-         
+        spawnPos = GameObject.FindGameObjectWithTag("Respawn");
 
         rb = this.GetComponent<Rigidbody>();
 
@@ -24,17 +27,32 @@ public class EnemyFollowMe : MonoBehaviour
 
     void FixedUpdate()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+
         if (player == null)
         {
-            player = GameObject.FindGameObjectWithTag("Player");
+            Vector3 pointTarget = transform.position - spawnPos.transform.position;
+            pointTarget.Normalize();
+
+            float value = Vector3.Cross(pointTarget, transform.forward).y;
+
+            rb.angularVelocity = rotateSpeed * value * new Vector3(0, 1, 0);
+            rb.velocity = transform.forward * moveSpeed;
+        }
+        
+        else
+        {
+             Vector3 pointTarget = transform.position - player.transform.position;
+             pointTarget.Normalize();
+
+             float value = Vector3.Cross(pointTarget, transform.forward).y;
+
+             rb.angularVelocity = rotateSpeed * value * new Vector3(0, 1, 0);
+             rb.velocity = transform.forward * moveSpeed;
         }
 
-        Vector3 pointTarget = transform.position - player.transform.position;
-        pointTarget.Normalize();
 
-        float value = Vector3.Cross(pointTarget, transform.forward).y;
 
-        rb.angularVelocity = rotateSpeed * value * new Vector3(0, 1, 0);
-        rb.velocity = transform.forward * moveSpeed;
+
     }
 }

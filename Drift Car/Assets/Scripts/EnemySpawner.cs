@@ -11,12 +11,25 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField]
     private float spawnDelay = 10;
 
+    private GameObject player;
+
+    private void Start()
+    {
+    }
+
     private void Update()
     {
-        if(ShouldSpawn())
+        player = GameObject.FindGameObjectWithTag("Player");
+
+        if (player != null)
         {
-            Spawn();
+            if (ShouldSpawn())
+            {
+                Spawn();
+            }
         }
+        
+        
     }
 
     private void Spawn()

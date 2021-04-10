@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class CarController : MonoBehaviour
 {
+    public GameObject explodeVfx;
+    public GameObject carBody;
+
+    public GameObject[] enemyCars;
+
     private float moveInput;
     private float turnInput;
 
@@ -12,11 +17,17 @@ public class CarController : MonoBehaviour
     public float reverseSpeed;
     public float turnSpeed;
 
+    public bool moveCar = true;
+
     public Rigidbody sphereRB;
+
+    public FixedTouchField rightTouch;
+    public FixedTouchField leftTouch;
 
     void Start()
     {
         sphereRB.transform.parent = null;
+
     }
 
   
@@ -25,16 +36,49 @@ public class CarController : MonoBehaviour
         moveInput = Input.GetAxisRaw("Vertical");
         turnInput = Input.GetAxisRaw("Horizontal");
 
-        moveInput *= moveInput > 0 ? fwdSpeed : reverseSpeed;
+        
 
         transform.position = sphereRB.transform.position;
+        if(moveCar)
+        {
+            if (rightTouch.Pressed)
+            {
+                float newRotation = turnSpeed * Time.deltaTime;
+                transform.Rotate(xAngle: 0, yAngle: newRotation, zAngle: 0, relativeTo: Space.World);
+            }
 
-        float newRotation = turnInput * turnSpeed * Time.deltaTime * Input.GetAxisRaw("Vertical");
-        transform.Rotate(xAngle: 0, yAngle: newRotation, zAngle: 0, relativeTo:Space.World);
+            if (leftTouch.Pressed)
+            {
+                float newRotation = -turnSpeed * Time.deltaTime;
+                transform.Rotate(xAngle: 0, yAngle: newRotation, zAngle: 0, relativeTo: Space.World);
+            }
+
+        }
+        
     }
 
     private void FixedUpdate()
     {
-        sphereRB.AddForce(transform.forward * moveInput, ForceMode.Acceleration);
+        if(moveCar)
+        {
+            sphereRB.AddForce(transform.forward * fwdSpeed, ForceMode.Acceleration);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.CompareTag("Enemy"))
+        {
+            
+            explodeVfx.SetActive(true);
+            carBody.SetActive(false);
+            moveCar = false;
+
+            Debug.Log("HHHHH");
+
+            this.gameObject.tag = "IgnoreMe";
+        }
+        
+
     }
 }
